@@ -8,77 +8,49 @@
     <input type="text" placeholder="Шукати по назві" v-model="searchTitleString">
   </section>
   <div class="wrap">
-  <div v-if="showNewBookForm" class="whiteboard">
-    <form
-      v-on:submit.prevent="addNewBook"
-      class="newForm"
-      
+    <new-book-form 
+      v-model = "newBook"
+      @submit.prevent="addNewBook"
+      ref="newBookForm"
+    > </new-book-form>
+    <new-book-form
+      v-model = "editBook"
+      ref="editBookForm"
     >
-      <button v-on:click="closeForm"> X </button>
-      Назва <input v-model="newBook.Title" /><br />
-      Автори <input v-model="newBook.Author" /> <br />
-      Ціна <input type="number" v-model.number="newBook.Price" /> <br />
-      Знижка <input type="number" v-model.number="newBook.Disount" /> <br />
-       Обгортка <input type="file" v-on:change="selectCover"> <br>
-       <img :src="newBook.Cover" alt="Cover" width="100" height="200"><br> 
-      <button type="submit">Додати</button>
-      <button type="reset">Очистити</button>
-    </form>
-  </div>
-    <form
-      v-on:submit.prevent="editSelectedBook"
-      class="newForm"
-      v-if="showEditBookForm"
-    >
-      Назва <input v-model="editBook.Title" /><br />
-      Автори <input v-model="editBook.Author" /> <br />
-      Ціна <input type="number" v-model.number="editBook.Price" /> <br />
-      Знижка <input type="number" v-model.number="editBook.Disount" /> <br />
-      <!-- Обгортка <input type="image" v-model="editBook.Cover"> <br> -->
-      <button type="submit">Редагувати</button>
-      <button type="reset">Очистити</button>
-    </form>
+    </new-book-form>
 
     <ul>
-      <li
-        v-for="(b, i) in filtredBooks"
-        :key="i"
+      <book-template
+        v-for="b in filtredBooks"
+        :key="b.Id"
         class="bookvie"
-        v-on:click="selectBook(i)"
-        :style="i == selected ? 'border:10px solid black' : ''"
+        v-on:click="selectBook(b.Id)"
+        v-bind:book="b"
       >
-        <h2>{{ b.Title }}</h2>
-        <p class="authors">{{ b.Author }}</p>
-        <p>{{ b.Price.toFixed(2) }}</p>
-        <img alt="Cover" :src="b.Cover" class="cover" />
-        <div v-if="b.Disount > 0" class="discount">Знижка {{ b.Disount }}%</div>
-        Рейтинг
-        <div class="stars">
-          <div v-if="b.Stars > 0" class="star">*</div>
-          <div v-if="b.Stars > 1" class="star">*</div>
-          <div v-if="b.Stars > 2" class="star">*</div>
-          <div v-if="b.Stars > 3" class="star">*</div>
-          <div v-if="b.Stars > 4" class="star">*</div>
-        </div>
-      </li>
+      </book-template>
     </ul>
   </div>
 </template>
 
 <script>
+import BookTemplate from './components/BookTemplate.vue';
+import NewBookForm from './components/NewBookForm.vue';
+
 
 export default {
   name: "App",
+  components:{
+    BookTemplate,
+    NewBookForm
+  },
   data() {
     return {
       searchTitleString:"",
       selected: -1,
-      newComment: "",
-      showComments: true,
-      showNewBookForm: false,
-      showEditBookForm: false,
+
       books: [
         {
+          Id:54564,
           Stars: 5,
           Disount: 10,
           Title: "Кобзар",
@@ -89,6 +61,7 @@ export default {
           Comments: ["Найкраща книга", "Дуже патріотично", "Супер"],
         },
         {
+          Id:1322222,
           Stars: 4,
           Disount: 0,
           Title: "Vue.js: Up and Running: Building Accessible and",
@@ -99,6 +72,7 @@ export default {
           Comments: ["Найкраща книга", "Дуже патріотично", "Супер"],
         },
         {
+          Id:13136346,
           Stars: 3,
           Disount: 0,
           Title: "Node.js Design Patterns",
@@ -116,7 +90,7 @@ export default {
         Price: 0,
         Cover: "",
       },
-      editBook: null,
+      editBook: {},
     };
   },
   methods: {
@@ -130,35 +104,34 @@ export default {
       this.showComments = !this.showComments;
     },
     addNewBook() {
+      console.log(this.newBook);
       let newBookCopy = Object.assign({}, this.newBook);
+      newBookCopy.Id = parseInt(Date.now());
       this.books.push(newBookCopy);
       this.showNewBookForm = false;
     },
     showForm() {
-      this.showNewBookForm = true;
+      this.$refs.newBookForm.show();
     },
-    selectBook(index) {
-      this.selected = index;
+    selectBook(id) {
+      this.selected = id;
     },
     showEditForm() {
       if (this.selected >= 0) {
-        this.editBook = this.books[this.selected];
-        this.showEditBookForm = true;
+        let index = this.books.findIndex(book => book.Id == this.selected);
+        this.editBook = this.books[index];
+        console.log(this.editBook);
+        this.$refs.editBookForm.show();
       } else alert("Виберіть книгу");
     },
-    editSelectedBook() {
-      this.showEditBookForm = false;
-    },
     deleteBook() {
-      if (this.selected >= 0) this.books.splice(this.selected, 1);
+      let index = this.books.findIndex(book => book.Id == this.selected);
+      if (this.selected >= 0) this.books.splice(index, 1);
     },
     closeForm(){
       this.showNewBookForm = false;
     },
-    selectCover(event){
-      const cover = event.target.files[0];
-      this.newBook.Cover = URL.createObjectURL(cover);
-    }
+ 
   },
   computed:{
       sortedBooks(){
@@ -179,57 +152,24 @@ export default {
         if (this.searchTitleString == "")
           return this.sortedBooks;
         return this.sortedBooks.filter(b => b.Title.includes(this.searchTitleString));
+      },
+      selectedIndex(){
+        if (this.selected>0)
+          return this.books.findIndex(book => book.Id == this.selected);
+        return -1;
       }
   }
 };
 </script>
 
 <style scoped>
-.whiteboard{
-  width: 1000px;
-  height: 1000px;
-  background: rgba(255, 255, 255, 0.384);
-  position: absolute;
-  z-index: 9;
-}
+
 ul {
   list-style: none;
   position: relative;
 }
-.authors {
-  font: 12px grey;
-}
-.bookvie {
-  background: burlywood;
-  width: 200px;
-  position: relative;
-  float: left;
-  margin: 10px;
-  height: 400px;
-}
-.discount {
-  position: absolute;
-  right: 0px;
-  top: 30px;
-  background: chartreuse;
-  transform: rotate(45deg);
-}
-.star {
-  float: left;
-}
-.cover {
-  position: relative;
-  width: 100px;
-  height: 150px;
-}
 
-form {
-  position: absolute;
-  z-index: 10;
-  background: oldlace;
-  margin: 100px auto;
-  width: 50%;
-}
+
 
 .wrap {
   position: relative;
