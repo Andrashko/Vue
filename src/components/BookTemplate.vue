@@ -1,32 +1,47 @@
 <template>
-     <li>
-        <h2>{{ book.Title }}</h2>
-        <p class="authors">{{ book.Author }}</p>
-        <p>{{ book.Price.toFixed(2) }}</p>
-        <img alt="Cover" :src="book.Cover" class="cover" />
-        <div v-if="book.Disount > 0" class="discount">Знижка {{ book.Disount }}%</div>
-        Рейтинг
-        <div class="stars">
-          <div v-if="book.Stars > 0" class="star">*</div>
-          <div v-if="book.Stars > 1" class="star">*</div>
-          <div v-if="book.Stars > 2" class="star">*</div>
-          <div v-if="book.Stars > 3" class="star">*</div>
-          <div v-if="book.Stars > 4" class="star">*</div>
-        </div>
-      </li>
+  <li>
+    <h2>{{ truncTitle(book.Title, 20) }}</h2>
+    <p class="authors">{{ book.Author }}</p>
+    <p>{{ fromatMoney(book.Price) }}</p>
+    <img alt="Cover" :src="book.Cover" class="cover" />
+    <div v-if="book.Disount > 0" class="discount">
+      Знижка {{ book.Disount }}%
+    </div>
+    <br />
+    Рейтинг <br />
+    <p>{{ stars(book.Stars) }}</p>
+  </li>
 </template>
 
 <script>
 export default {
-  name:"BookTempate",
-  props:{
-      book: Object
+  name: "BookTempate",
+  props: {
+    book: Object,
   },
-  data(){
-      return{
-      }
-  }   
-}
+  data() {
+    return {};
+  },
+  methods: {
+    truncTitle(title, len) {
+      if (title.length > len) return title.substring(0, len) + "...";
+      else return title;
+    },
+    fromatMoney(value) {
+      return `${value.toFixed(2)} грн.`;
+    },
+    stars(count) {
+      return "⋆".repeat(count);
+    },
+  },
+  computed:{
+    shortTitle (){
+      const len = 20;
+       if (this.book.Title.length > len) return this.book.Title.substring(0, len) + "...";
+      else return this.book.Title;
+    }
+  }
+};
 </script>
 
 <style scoped>

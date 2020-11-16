@@ -7,7 +7,7 @@
       <button v-on:click="hide"> X </button>
       Назва <input v-model="newBook.Title" /><br />
       Автори <input v-model="newBook.Author" /> <br />
-      Ціна <input type="number" v-model.number="newBook.Price" /> <br />
+      Ціна <input type="number" v-model.number="newBook.Price" step="0.01"/> <br />
       Знижка <input type="number" v-model.number="newBook.Disount" /> <br />
        Обгортка <input type="file" v-on:change="selectCover"> <br>
        <img :src="newBook.Cover" alt="Cover" width="100" height="200"><br> 
@@ -44,6 +44,11 @@ export default {
             const cover = event.target.files[0];
             this.newBook.Cover = URL.createObjectURL(cover);
         }
+    }, 
+    watch:{
+      modelValue(newValue){
+        this.newBook = newValue;
+      }
     }
 }
 </script>
