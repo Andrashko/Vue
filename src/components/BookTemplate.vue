@@ -1,6 +1,6 @@
 <template>
   <li>
-    <h2>{{ truncTitle(book.Title, 20) }}</h2>
+    <h2 @click="showDetailPage">{{ truncTitle(book.Title, 20) }}</h2>
     <p class="authors">{{ book.Author }}</p>
     <p>{{ fromatMoney(book.Price) }}</p>
     <img alt="Cover" :src="book.Cover" class="cover" />
@@ -33,6 +33,10 @@ export default {
     stars(count) {
       return "⋆".repeat(count);
     },
+    showDetailPage(){
+      this.$router.push(`/book/${this.book.Id}`);
+    }
+
   },
   computed:{
     shortTitle (){
