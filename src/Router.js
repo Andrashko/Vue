@@ -6,7 +6,7 @@ import Chart from "./components/Chart.vue";
 import BookDetaild from "./components/BookDetaild";
 import EditForm from "./components/FullScreenEditBook.vue";
 import NewForm from "./components/FullScreenNewBook.vue";
-import Page404 from "./components/Page404.vue";
+
 
 const Router = createRouter({
     history: createWebHistory(),
@@ -37,10 +37,7 @@ const Router = createRouter({
             path:"/book/new",
             component: NewForm
         },
-        {
-            path:"*",
-            component: Page404
-        }
+        
     ]
 });
 

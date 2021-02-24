@@ -21,7 +21,7 @@
     >
     </new-book-form>
 
-    <ul>
+    <ul v-if="filtredBooks.length>0">
       <book-template
         v-for="b in filtredBooks"
         :key="b.Id"
@@ -31,13 +31,15 @@
       >
       </book-template>
     </ul>
+    <p v-if="books.length == 0"> Йде завантаження </p>
+    
   </div>
 </template>
 
 <script>
 import BookTemplate from './BookTemplate.vue';
 import NewBookForm from './NewBookForm.vue';
-import Storage from "../storage";
+import axios from "axios";
 
 export default {
   name: "App",
@@ -50,7 +52,7 @@ export default {
       searchTitleString:"",
       selected: -1,
 
-      books: Storage.books,
+      books: [],
       newBook: {
         Disount: 0,
         Title: "",
@@ -60,6 +62,13 @@ export default {
       },
       editBook: {},
     };
+  },
+  async mounted(){
+      try{
+          this.books = (await axios.get("https://localhost:7443/api/book")).data;
+      } catch (err){
+        console.log(err);
+      }
   },
   methods: {
     sortBooksByPrice(){
