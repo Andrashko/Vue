@@ -21,7 +21,7 @@ export default {
     xhr.open("GET", "https://cat-fact.herokuapp.com/facts");
     xhr.send();
     xhr.onloadend = () => {
-      console.log(xhr)
+      console.log(xhr);
       if (xhr.status == 200) {
         console.log(xhr.response);
       } else {

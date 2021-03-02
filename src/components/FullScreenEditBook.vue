@@ -10,10 +10,11 @@
 
     <button type="submit">Зберегти</button>
   </form>
-  <p v-else> Невірний id </p>
+  <p v-else>Невірний id</p>
 </template>
 <script>
-import Storage from "../storage";
+// import Storage from "../storage";
+import axios from "axios";
 
 export default {
   props: {
@@ -22,26 +23,51 @@ export default {
   data() {
     return {
       book: {},
-      correctId: false
+      correctId: false,
     };
   },
-  mounted() {
-    let book = Storage.books.find((book) => book.Id == Number(this.id));
-    if (book){
-        this.book = book;
-        this.correctId = true;
+  async mounted() {
+    // let book = Storage.books.find((book) => book.Id == Number(this.id));
+    // if (book){
+    //     this.book = book;
+    //     this.correctId = true;
+    // }
+    // else
+    //     this.correctId = false;
+
+    try {
+      let book = (await axios.get(`https://localhost:7443/api/book/${this.id}`))
+        .data;
+      this.book = book;
+      this.correctId = true;
+    } catch (err) {
+      this.correctId = false;
+      console.log(err);
     }
-    else
-        this.correctId = false;
   },
   methods: {
-    save() {
-      this.$router.push(`/book/${this.id}`);
+    async save() {
+      try {
+        console.log(this.book);
+        let updatedBook = (
+          await axios.patch(
+            `https://localhost:7443/api/book/${this.id}`,
+            {
+              Title:this.book.Title,
+              Athor: this.book.Athor,
+            }
+          )
+        ).data;
+
+        this.$router.push(`/book/${updatedBook._id}`);
+      } catch (err) {
+        console.log(err);
+      }
     },
-        selectCover(event){
-            const cover = event.target.files[0];
-            this.newBook.Cover = URL.createObjectURL(cover);
-        }    
+    selectCover(event) {
+      const cover = event.target.files[0];
+      this.newBook.Cover = URL.createObjectURL(cover);
+    },
   },
 };
 </script>

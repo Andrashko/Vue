@@ -12,8 +12,8 @@
   </form>
 </template>
 <script>
-import Storage from "../storage";
-
+//import Storage from "../storage";
+import axios from "axios";
 export default {
   data() {
     return {
@@ -29,11 +29,18 @@ export default {
     };
   },
   methods: {
-    save() {
-      let newBook = Object.assign({}, this.book);
-      newBook.Id = Date.now();
-      Storage.books.push(newBook);
-      this.$router.push(`/book/${newBook.Id}`);
+    async save() {
+      // let newBook = Object.assign({}, this.book);
+      // newBook.Id = Date.now();
+      // Storage.books.push(newBook);
+      try{
+        let newBook = (await axios.post("https://localhost:7443/api/book", this.book)).data ;
+        this.$router.push(`/book/${newBook._id}`);
+      }
+      catch (err){
+        console.log(err);
+      }
+      
     },
     selectCover(event) {
       const cover = event.target.files[0];

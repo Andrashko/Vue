@@ -7,7 +7,8 @@
 </template>
 
 <script>
-import Storage from "../storage";
+//import Storage from "../storage";
+import axios from "axios";
 
 export default {
     props:{
@@ -15,15 +16,26 @@ export default {
     },
     data(){
         return{
-            book:{}
+            book:{
+                Title:"Test",
+                Author:"",
+                Cover:""
+            }
         }
     },
-    mounted(){
-        this.book = Storage.books.find(book => book.Id == Number(this.id));
+    async mounted(){
+        
+        //this.book = Storage.books.find(book => book.Id == Number(this.id));
+        try{
+            let url = `https://localhost:7443/api/book/${this.id}`;
+            this.book = (await axios.get(url)).data;
+        } catch (err){
+            console.log(err);
+        }
     },
     methods:{
-        edit(){
-            this.$router.push(`${this.book.Id}/edit`);
+        async edit(){
+            this.$router.push(`/book/${this.id}/edit`);
         }
     }
 }
